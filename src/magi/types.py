@@ -16,42 +16,45 @@ Two load-bearing invariants are encoded structurally here, not just by conventio
 
 from __future__ import annotations
 
-from enum import Enum
-from typing import Literal
+from enum import StrEnum
 
 from pydantic import BaseModel, Field, field_validator
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Enumerations
 # ─────────────────────────────────────────────────────────────────────────────
 
-class Vote(str, Enum):
+
+class Vote(StrEnum):
     """A binding position. Deliberately binary: the system forces commitment."""
+
     YES = "yes"
     NO = "no"
 
 
-class Tier(str, Enum):
+class Tier(StrEnum):
     """Decision reversibility. The only classification the system makes."""
+
     REVERSIBLE = "reversible"
     HARD_TO_REVERSE = "hard_to_reverse"
 
 
-class Outcome(str, Enum):
+class Outcome(StrEnum):
     """The terminal state of a deliberation.
 
     Note what is absent: there is no 'synthesized' or 'merged' outcome. The three
     possible outcomes preserve disagreement rather than resolving it into one answer.
     """
-    MAJORITY = "majority"                 # a position prevailed by the tier threshold
-    SPLIT = "split"                       # threshold not met; crux produced, no verdict
+
+    MAJORITY = "majority"  # a position prevailed by the tier threshold
+    SPLIT = "split"  # threshold not met; crux produced, no verdict
     FRAGILE_AGREEMENT = "fragile_agreement"  # agreement reached on incompatible reasons
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Inputs
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 class Agent(BaseModel):
     """One reasoner with a fixed mandate.
@@ -60,6 +63,7 @@ class Agent(BaseModel):
     personality. It is stored verbatim on every Position so the conditions of a
     deliberation are auditable from the record alone.
     """
+
     model_config = {"frozen": True}
 
     name: str = Field(min_length=1, description="Stable identifier, e.g. 'empirical'.")
@@ -77,6 +81,7 @@ class Agent(BaseModel):
 # Atomic outputs
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class Position(BaseModel):
     """One agent's committed output for one deliberation.
 
@@ -85,17 +90,21 @@ class Position(BaseModel):
     protocol guarantees it was produced without sight of peers; the type guarantees
     it cannot structurally hold a peer's content.
     """
+
     model_config = {"frozen": True}
 
     agent_name: str = Field(min_length=1)
     agent_mandate: str = Field(min_length=1, description="Stored verbatim for auditability.")
-    rationale: str = Field(min_length=1, description="The agent's full written reasoning, verbatim.")
+    rationale: str = Field(
+        min_length=1, description="The agent's full written reasoning, verbatim."
+    )
     vote: Vote
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # The record (the product)
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 class Record(BaseModel):
     """The durable artifact of one deliberation. This is the product.
@@ -108,6 +117,7 @@ class Record(BaseModel):
     rationale verbatim, including the losing one(s). The `minority` accessor derives
     the losing rationale from `positions`; it never stores a summarized version.
     """
+
     model_config = {"frozen": True}
 
     id: str = Field(min_length=1, description="Stable identifier for retrieval and citation.")
