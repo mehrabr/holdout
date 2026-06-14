@@ -1,0 +1,63 @@
+[project]
+name = "magi"
+version = "0.1.0"
+description = "Preserve the dissenting reasoning behind contested decisions, as a durable record."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "MAGI Design Team" }]
+
+# Runtime dependencies are deliberately minimal. No agent framework (LangChain,
+# CrewAI, etc.) -- those impose the synthesis/coordination patterns MAGI rejects,
+# and pulling one in would smuggle the convergence bias back through a dependency.
+dependencies = [
+  "httpx>=0.27",        # async HTTP to any OpenAI-compatible endpoint
+  "pydantic>=2.7",      # the record types; schema is the spec, validation is free
+  "jinja2>=3.1",        # report template rendering
+  "typer>=0.12",        # thin CLI over the library
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-asyncio>=0.23",  # the protocol is inherently async (parallel fan-out)
+  "respx>=0.21",           # mock httpx so tests never hit a real API
+  "ruff>=0.5",             # lint + format in one tool
+  "mypy>=1.10",            # static typing; the contract is typed, enforce it
+]
+
+[project.scripts]
+magi = "magi.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/magi"]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Tooling
+# ─────────────────────────────────────────────────────────────────────────────
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"          # async test functions need no decorator
+addopts = "-q --strict-markers"
+markers = [
+  "live: tests that hit a real provider endpoint (excluded by default; opt in with -m live)",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src/magi"]
+# Tests may be looser than strict src; point mypy at src only.
