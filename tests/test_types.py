@@ -58,12 +58,12 @@ UNANIMOUS_POSITIONS = [
 
 
 def test_empty_mandate_rejected() -> None:
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         Agent(name="x", mandate="")
 
 
 def test_whitespace_name_rejected() -> None:
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         Agent(name="  ", mandate="valid mandate")
 
 
@@ -77,7 +77,7 @@ def test_valid_agent_constructs() -> None:
 
 
 def test_two_positions_rejected() -> None:
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         _record(MAJORITY_POSITIONS[:2], Outcome.MAJORITY)
 
 
@@ -88,7 +88,7 @@ def test_four_positions_rejected() -> None:
         _pos("c", "m3", "r3", "no"),
         _pos("d", "m4", "r4", "no"),
     ]
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         _record(four, Outcome.SPLIT, crux="Some crux.")
 
 
