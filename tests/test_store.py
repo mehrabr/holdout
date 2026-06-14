@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import pytest
 
-from magi.store.sqlite import RecordStore
-from magi.types import Outcome, Position, Record, Tier, Vote
+from holdout.store.sqlite import RecordStore
+from holdout.types import Outcome, Position, Record, Tier, Vote
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 

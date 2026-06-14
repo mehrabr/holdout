@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from magi.types import Outcome, Position, Tier, Vote
+from holdout.types import Outcome, Position, Tier, Vote
 
 
 def tabulate(positions: Sequence[Position], tier: Tier) -> Outcome:

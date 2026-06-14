@@ -1,11 +1,11 @@
 """CLI: thin typer wrapper over the MAGI library.
 
-Entry point: ``magi`` (configured in pyproject.toml).
+Entry point: ``holdout`` (configured in pyproject.toml).
 
 Commands:
-  magi deliberate "question" --tier reversible|hard_to_reverse [--report FILE] [--db PATH]
-  magi record <id>     [--db PATH]
-  magi similar "q"     [--n N] [--db PATH]
+  holdout deliberate "question" --tier reversible|hard_to_reverse [--report FILE] [--db PATH]
+  holdout record <id>     [--db PATH]
+  holdout similar "q"     [--n N] [--db PATH]
 
 Provider configuration via environment variables:
   MAGI_API_KEY   Bearer token (required for real completions)
@@ -22,12 +22,12 @@ from pathlib import Path
 
 import typer
 
-from magi.protocol.engine import Panel
-from magi.providers.base import Provider
-from magi.providers.openai_compat import OpenAICompatProvider
-from magi.report.render import render
-from magi.store.sqlite import RecordStore
-from magi.types import Agent, Tier
+from holdout.protocol.engine import Panel
+from holdout.providers.base import Provider
+from holdout.providers.openai_compat import OpenAICompatProvider
+from holdout.report.render import render
+from holdout.store.sqlite import RecordStore
+from holdout.types import Agent, Tier
 
 app = typer.Typer(no_args_is_help=True)
 

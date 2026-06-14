@@ -12,9 +12,9 @@ from __future__ import annotations
 
 import pytest
 
-from magi.protocol.concurrence import detect_concurrence
-from magi.providers.fake import FakeProvider
-from magi.types import Position, Vote
+from holdout.protocol.concurrence import detect_concurrence
+from holdout.providers.fake import FakeProvider
+from holdout.types import Position, Vote
 
 # ---- helpers ----------------------------------------------------------------
 

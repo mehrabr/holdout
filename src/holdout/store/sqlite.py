@@ -15,7 +15,7 @@ import sqlite3
 from pathlib import Path
 from typing import Final
 
-from magi.types import Outcome, Position, Record, Tier, Vote
+from holdout.types import Outcome, Position, Record, Tier, Vote
 
 _SCHEMA: Final[str] = (Path(__file__).parent / "schema.sql").read_text()
 

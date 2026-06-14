@@ -1,6 +1,6 @@
 """Tests for cli.py — thin typer wrapper over the MAGI library.
 
-All tests inject FakeProvider by monkeypatching ``magi.cli._provider_factory``.
+All tests inject FakeProvider by monkeypatching ``holdout.cli._provider_factory``.
 No network, no API key, fully deterministic.
 
 The FakeProvider rules match the mandates defined in cli._DEFAULT_AGENTS:
@@ -20,9 +20,9 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-import magi.cli as cli_module
-from magi.cli import app
-from magi.providers.fake import FakeProvider
+import holdout.cli as cli_module
+from holdout.cli import app
+from holdout.providers.fake import FakeProvider
 
 runner = CliRunner()
 
@@ -228,7 +228,7 @@ def test_deliberate_both_tier_values_accepted(
 
 def test_deliberate_writes_to_store(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """After deliberate, the record id printed is retrievable from the store."""
-    from magi.store.sqlite import RecordStore
+    from holdout.store.sqlite import RecordStore
 
     db_path = tmp_path / "db"
     record_id = _run_deliberation_and_get_id(str(db_path), monkeypatch)

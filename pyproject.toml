@@ -1,5 +1,5 @@
 [project]
-name = "magi"
+name = "holdout"
 version = "0.1.0"
 description = "Preserve the dissenting reasoning behind contested decisions, as a durable record."
 readme = "README.md"
@@ -27,14 +27,14 @@ dev = [
 ]
 
 [project.scripts]
-magi = "magi.cli:app"
+holdout = "holdout.cli:app"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/magi"]
+packages = ["src/holdout"]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Tooling
@@ -58,10 +58,10 @@ select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 
 [tool.ruff.lint.per-file-ignores]
 # typer's API requires function calls (typer.Option/Argument) in parameter defaults
-"src/magi/cli.py" = ["B008"]
+"src/holdout/cli.py" = ["B008"]
 
 [tool.mypy]
 python_version = "3.11"
 strict = true
-files = ["src/magi"]
+files = ["src/holdout"]
 # Tests may be looser than strict src; point mypy at src only.

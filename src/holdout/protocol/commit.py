@@ -16,8 +16,8 @@ import re
 from collections.abc import Sequence
 from pathlib import Path
 
-from magi.providers.base import Provider
-from magi.types import Agent, Position, Vote
+from holdout.providers.base import Provider
+from holdout.types import Agent, Position, Vote
 
 _PROMPT = (Path(__file__).parents[3] / "prompts" / "commit.txt").read_text()
 

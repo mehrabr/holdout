@@ -21,7 +21,7 @@ import httpx
 import pytest
 import respx
 
-from magi.providers.openai_compat import OpenAICompatProvider
+from holdout.providers.openai_compat import OpenAICompatProvider
 
 _BASE_URL = "https://api.test.local/v1"
 _API_KEY = "sk-test-key-abc"

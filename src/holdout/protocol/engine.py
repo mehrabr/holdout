@@ -17,12 +17,12 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
-from magi.protocol.commit import gather
-from magi.protocol.concurrence import detect_concurrence
-from magi.protocol.crux import extract_crux
-from magi.protocol.tabulate import tabulate
-from magi.providers.base import Provider
-from magi.types import Agent, Outcome, Record, Tier, Vote
+from holdout.protocol.commit import gather
+from holdout.protocol.concurrence import detect_concurrence
+from holdout.protocol.crux import extract_crux
+from holdout.protocol.tabulate import tabulate
+from holdout.providers.base import Provider
+from holdout.types import Agent, Outcome, Record, Tier, Vote
 
 
 @dataclass

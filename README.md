@@ -1,15 +1,24 @@
-# MAGI
+# holdout
+
+Most multi-model tools synthesize the disagreement into one answer, dissolving the dissent in the process. `holdout` deliberately preserves the dissenting position — because for decisions with no verifiable answer, the losing reasoning is exactly what's worth keeping.
+
+---
 
 **Preserve the dissenting reasoning behind contested decisions, as a durable record.**
 
-MAGI puts a question that has no verifiable answer to several independently prompted
+`holdout` puts a question that has no verifiable answer to several independently prompted
 reasoners, each committing a written rationale and a YES/NO vote *before seeing any
 peer*. It keeps every rationale — including the losing one — as a durable, retrievable
 record, and on disagreement returns a **crux** (the specific, falsifiable disagreement
 to resolve) instead of forcing an answer.
 
-The output is an artifact, not a decision. MAGI does **not** make a recommendation, does
+The output is an artifact, not a decision. `holdout` does **not** make a recommendation, does
 **not** synthesize the positions into one answer, and makes **no accuracy claim**.
+
+The project's internal codename and report aesthetic is **MAGI** (the three deliberating
+systems from Neon Genesis Evangelion: Melchior, Balthasar, Caspar). The installable
+package, CLI, and imports are `holdout`; "MAGI" in prose refers to the concept and
+the visual identity of the rendered reports.
 
 ## Why
 
@@ -20,7 +29,7 @@ that have an answer key. It is the wrong move for consequential decisions that d
 outputs manufactures false confidence, and where the *losing* reasoning is exactly what
 you want preserved for the later postmortem.
 
-MAGI is for that second class of question only. It applies the practice that courts,
+`holdout` is for that second class of question only. It applies the practice that courts,
 medical boards, and intelligence analysis have long used — preserved, structured dissent
 under conditions of high stakes and absent ground truth — to software-assisted decisions.
 
@@ -41,9 +50,9 @@ uv pip install -e ".[dev]"   # or: pip install -e ".[dev]"
 ## Use
 
 ```python
-from magi import Agent
-from magi.protocol.engine import Panel          # added in build step 2
-from magi.providers.openai_compat import OpenAICompatProvider
+from holdout import Agent
+from holdout.protocol.engine import Panel
+from holdout.providers.openai_compat import OpenAICompatProvider
 
 panel = Panel(
     agents=[
@@ -67,8 +76,8 @@ record.to_report()  # render the self-contained report file
 ```
 
 ```bash
-magi "Should we adopt this dependency?" --tier hard_to_reverse --report decision.html
-magi similar "Should we adopt a different dependency?"
+holdout "Should we adopt this dependency?" --tier hard_to_reverse --report decision.html
+holdout similar "Should we adopt a different dependency?"
 ```
 
 ## Status

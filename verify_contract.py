@@ -6,9 +6,9 @@ import sys
 
 sys.path.insert(0, "src")
 
-from magi.types import Agent, Position, Record, Vote, Tier, Outcome  # noqa: E402
-from magi.providers.fake import FakeProvider  # noqa: E402
-from magi.providers.base import Provider  # noqa: E402
+from holdout.types import Agent, Position, Record, Vote, Tier, Outcome  # noqa: E402
+from holdout.providers.fake import FakeProvider  # noqa: E402
+from holdout.providers.base import Provider  # noqa: E402
 
 ok = 0
 fail = 0

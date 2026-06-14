@@ -15,9 +15,9 @@ from __future__ import annotations
 
 import re
 
-from magi.protocol.engine import Panel
-from magi.providers.fake import FakeProvider
-from magi.types import Agent, Outcome, Record, Tier, Vote
+from holdout.protocol.engine import Panel
+from holdout.providers.fake import FakeProvider
+from holdout.types import Agent, Outcome, Record, Tier, Vote
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Shared fixtures

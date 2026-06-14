@@ -15,8 +15,8 @@ import re
 from collections.abc import Sequence
 from pathlib import Path
 
-from magi.providers.base import Provider
-from magi.types import Position
+from holdout.providers.base import Provider
+from holdout.types import Position
 
 _PROMPT = (Path(__file__).parents[3] / "prompts" / "concurrence.txt").read_text()
 

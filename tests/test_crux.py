@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import pytest
 
-from magi.protocol.crux import extract_crux
-from magi.providers.fake import FakeProvider
-from magi.types import Position, Vote
+from holdout.protocol.crux import extract_crux
+from holdout.providers.fake import FakeProvider
+from holdout.types import Position, Vote
 
 # ---- helpers ----------------------------------------------------------------
 

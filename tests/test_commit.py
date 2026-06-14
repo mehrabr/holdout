@@ -15,9 +15,9 @@ from typing import get_type_hints
 
 import pytest
 
-from magi.protocol.commit import commit, gather
-from magi.providers.fake import FakeProvider
-from magi.types import Agent, Position, Vote
+from holdout.protocol.commit import commit, gather
+from holdout.providers.fake import FakeProvider
+from holdout.types import Agent, Position, Vote
 
 # ---- fixtures ----------------------------------------------------------------
 

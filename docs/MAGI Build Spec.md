@@ -1,4 +1,10 @@
 
+> **Package identity note:** The project ships as the `holdout` package (`pip install holdout`,
+> `from holdout import ...`, CLI command `holdout`). "MAGI" is the internal codename and the
+> source of the report aesthetic and persona names (Melchior, Balthasar, Caspar). Prose
+> references to "MAGI" in this document mean the concept and design; the installable package,
+> CLI, and import paths are all `holdout`.
+
 **MAGI**
 **BUILD SPECIFICATION**
 *What to implement, and nothing else.*
@@ -83,7 +89,7 @@ The rendered report is the primary deliverable: a self-contained file that makes
 # 6. Interfaces
 ## 6.1 Library
 A minimal programmatic surface. Representative shape:
-from magi import Panel, Agent
+from holdout import Panel, Agent
 
 panel = Panel([
     Agent('empirical',   'Reason from data and measurable outcomes'),
@@ -105,14 +111,14 @@ record.to_report()  # render the self-contained report file
 ## 6.2 Command Line
 A thin wrapper over the library for use without writing code:
 # run a deliberation
-magi "Should we adopt this dependency?" --tier hard_to_reverse
+holdout "Should we adopt this dependency?" --tier hard_to_reverse
 
 # write the report to a file for attachment
-magi "..." --tier reversible --report decision-dep-adopt.html
+holdout "..." --tier reversible --report decision-dep-adopt.html
 
 # retrieve a past record by id, or by similarity to a new question
-magi record <id>
-magi similar "Should we adopt a different dependency?"
+holdout record <id>
+holdout similar "Should we adopt a different dependency?"
 ## 6.3 Providers
 Any OpenAI-compatible endpoint. Agents may use different models, and parallel-dispatch infrastructure may be used for the fan-out. The only provider-level constraint is the blind-commitment guarantee: an agent's call must not include any peer rationale produced in the same deliberation prior to that agent's own commitment.
 # 7. Build Order

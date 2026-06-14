@@ -1,4 +1,10 @@
 
+> **Package identity note:** The project ships as the `holdout` package (`pip install holdout`,
+> `from holdout import ...`, CLI command `holdout`). "MAGI" is the internal codename and the
+> source of the report aesthetic and persona names (Melchior, Balthasar, Caspar). Prose
+> references to "MAGI" in this document mean the concept and design; the installable package,
+> CLI, and import paths are all `holdout`.
+
 **MAGI**
 **DELIBERATION LEDGER**
 *System Design Document*

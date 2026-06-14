@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import pytest
 
-from magi.protocol.tabulate import tabulate
-from magi.types import Outcome, Position, Tier, Vote
+from holdout.protocol.tabulate import tabulate
+from holdout.types import Outcome, Position, Tier, Vote
 
 # ---- helpers ----------------------------------------------------------------
 

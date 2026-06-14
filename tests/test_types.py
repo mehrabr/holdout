@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from magi.types import Agent, Outcome, Position, Record, Tier, Vote
+from holdout.types import Agent, Outcome, Position, Record, Tier, Vote
 
 # ─── helpers ──────────────────────────────────────────────────────────────────
 

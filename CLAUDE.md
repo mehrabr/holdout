@@ -77,7 +77,7 @@ blind-commitment surveillance test is removed or skipped.
 ## Repo map
 
 ```
-src/magi/
+src/holdout/
   __init__.py          public API (tiny)
   types.py             THE CONTRACT — build first, change rarely
   providers/

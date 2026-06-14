@@ -13,8 +13,8 @@ from __future__ import annotations
 
 import re
 
-from magi.report.render import render
-from magi.types import Outcome, Position, Record, Tier, Vote
+from holdout.report.render import render
+from holdout.types import Outcome, Position, Record, Tier, Vote
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 

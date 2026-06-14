@@ -1,3 +1,9 @@
+> **Package identity note:** The project ships as the `holdout` package (`pip install holdout`,
+> `from holdout import ...`, CLI command `holdout`). "MAGI" is the internal codename and the
+> source of the report aesthetic and persona names (Melchior, Balthasar, Caspar). Prose
+> references to "MAGI" in this document mean the concept and design; the installable package,
+> CLI, and import paths are all `holdout`.
+
 **MAGI**
 
 **TESTING STRATEGY**
@@ -170,11 +176,11 @@ Each module\'s tests are self-contained and map to a build step, so a task is al
 
 **cli.py --- thin wrapper**
 
-- \`magi \"q\" \--tier \...\` runs a deliberation and writes a report file.
+- \`holdout \"q\" \--tier \...\` runs a deliberation and writes a report file.
 
 - Omitting or mis-spelling the tier is rejected with a clear message (the caller must assert the tier).
 
-- \`magi record \<id\>\` and \`magi similar \"q\"\` retrieve from the store.
+- \`holdout record \<id\>\` and \`holdout similar \"q\"\` retrieve from the store.
 
 - CLI tests run against the FakeProvider via dependency injection --- no network.
 

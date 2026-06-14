@@ -11,7 +11,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
-from magi.types import Outcome, Record, Vote
+from holdout.types import Outcome, Record, Vote
 
 _TEMPLATE_DIR = Path(__file__).parent
 
