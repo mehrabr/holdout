@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MAGI Deliberation — {{ record.id }}</title>
+  <style>
+    body { font-family: sans-serif; max-width: 860px; margin: 2em auto; padding: 0 1em; color: #222; }
+    h1 { font-size: 1.4em; }
+    h2 { font-size: 1.1em; border-bottom: 1px solid #ddd; padding-bottom: .25em; margin-top: 1.5em; }
+    h3 { font-size: 1em; margin: 0 0 .25em 0; }
+    blockquote { border-left: 4px solid #555; margin: .5em 0; padding: .5em 1em; background: #f5f5f5; }
+    .position { border: 1px solid #bbb; border-radius: 4px; padding: 1em; margin: 1em 0; }
+    .mandate { color: #555; font-style: italic; margin: .25em 0; font-size: .9em; }
+    .vote { margin: .25em 0; }
+    .rationale { white-space: pre-wrap; margin-top: .75em; }
+    .on-record { font-size: .75em; font-weight: normal; color: #555; margin-left: .5em; border: 1px solid #bbb; border-radius: 3px; padding: .1em .4em; }
+    .tally { margin: .5em 0; }
+    .crux-box { background: #fff8e1; border-left: 4px solid #e6a817; padding: 1em; margin: 1em 0; }
+    .fragile-box { background: #fef3f3; border-left: 4px solid #c0392b; padding: 1em; margin: 1em 0; }
+    .citation { color: #666; font-size: .85em; }
+    code { background: #eee; padding: .1em .3em; border-radius: 2px; font-size: .9em; }
+  </style>
+</head>
+<body>
+
+<h1>MAGI Deliberation Record</h1>
+<p class="citation">
+  Record ID: <code>{{ record.id }}</code> &bull;
+  {{ record.created_at }} &bull;
+  Tier: {{ record.tier }}
+</p>
+
+<h2>Question</h2>
+<blockquote>{{ record.question }}</blockquote>
+
+<h2>Outcome: {{ record.outcome }}</h2>
+<p class="tally">YES: {{ yes_count }} &nbsp;&bull;&nbsp; NO: {{ no_count }}</p>
+
+{% if record.outcome == 'split' %}
+<div class="crux-box">
+  <strong>This deliberation could not reach a verdict.</strong>
+  The panel is split. The consequence-anchored crux — the question whose resolution
+  would most likely change the outcome — is:
+  <blockquote>{{ record.crux }}</blockquote>
+</div>
+{% elif record.outcome == 'fragile_agreement' %}
+<div class="fragile-box">
+  <strong>Fragile Agreement.</strong>
+  The panel reached the same position on incompatible reasons. The shared vote rests
+  on rationales that do not reinforce each other. This result is on record as a
+  fragile agreement, not as consensus.
+</div>
+{% endif %}
+
+<h2>Positions</h2>
+{% for position, is_minority in positions_with_labels %}
+<div class="position">
+  <h3>
+    {{ position.agent_name }}{% if is_minority %}<span class="on-record">position on record</span>{% endif %}
+  </h3>
+  <p class="mandate">Mandate: {{ position.agent_mandate }}</p>
+  <p class="vote">Vote: <strong>{{ position.vote }}</strong></p>
+  <div class="rationale">{{ position.rationale }}</div>
+</div>
+{% endfor %}
+
+</body>
+</html>
