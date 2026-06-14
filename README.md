@@ -44,7 +44,7 @@ under conditions of high stakes and absent ground truth — to software-assisted
 ## Install
 
 ```bash
-uv pip install -e ".[dev]"   # or: pip install -e ".[dev]"
+pip install holdout
 ```
 
 ## Use

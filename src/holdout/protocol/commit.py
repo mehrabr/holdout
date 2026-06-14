@@ -14,12 +14,12 @@ from __future__ import annotations
 import asyncio
 import re
 from collections.abc import Sequence
-from pathlib import Path
+from importlib.resources import files
 
 from holdout.providers.base import Provider
 from holdout.types import Agent, Position, Vote
 
-_PROMPT = (Path(__file__).parents[3] / "prompts" / "commit.txt").read_text()
+_PROMPT = (files("holdout") / "prompts" / "commit.txt").read_text(encoding="utf-8")
 
 
 async def commit(question: str, agent: Agent, provider: Provider) -> Position:

@@ -13,12 +13,12 @@ or FRAGILE_AGREEMENT.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from pathlib import Path
+from importlib.resources import files
 
 from holdout.providers.base import Provider
 from holdout.types import Position
 
-_PROMPT = (Path(__file__).parents[3] / "prompts" / "crux.txt").read_text()
+_PROMPT = (files("holdout") / "prompts" / "crux.txt").read_text(encoding="utf-8")
 
 
 def _format_rationales(positions: Sequence[Position]) -> str:

@@ -13,12 +13,12 @@ from __future__ import annotations
 
 import re
 from collections.abc import Sequence
-from pathlib import Path
+from importlib.resources import files
 
 from holdout.providers.base import Provider
 from holdout.types import Position
 
-_PROMPT = (Path(__file__).parents[3] / "prompts" / "concurrence.txt").read_text()
+_PROMPT = (files("holdout") / "prompts" / "concurrence.txt").read_text(encoding="utf-8")
 
 _ASSESSMENT_RE = re.compile(r"\bASSESSMENT:\s*(CONVERGENT|FRAGILE)\b", re.IGNORECASE)
 
