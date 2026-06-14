@@ -56,6 +56,10 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 
+[tool.ruff.lint.per-file-ignores]
+# typer's API requires function calls (typer.Option/Argument) in parameter defaults
+"src/magi/cli.py" = ["B008"]
+
 [tool.mypy]
 python_version = "3.11"
 strict = true
