@@ -196,7 +196,7 @@ Each module\'s tests are self-contained and map to a build step, so a task is al
 
 Three prompts carry semantic weight: the per-agent commitment prompt, the crux-extraction prompt, and the concurrence-detection prompt. Their wording determines output quality, and quality is not unit-testable --- only plumbing is. Conflating the two would produce brittle tests that break on harmless rewording and still fail to measure what matters.
 
-- Prompts live as versioned text files under \`prompts/\`, separate from logic, so they can be tuned without touching tested code paths.
+- Prompts live as versioned text files under \`src/holdout/prompts/\`, loaded at runtime via \`importlib.resources\`. They can be tuned without touching tested code paths.
 
 - Tests assert the prompt is loaded, populated with the right fields, and that its response is parsed correctly --- never that the response is good.
 
