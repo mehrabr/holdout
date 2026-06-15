@@ -4,6 +4,10 @@ Most multi-model tools synthesize the disagreement into one answer, dissolving t
 
 ---
 
+![Sample MAGI report — "Should we rewrite it in Rust?" — showing a split outcome with crux](docs/sample_report.png)
+
+---
+
 **Preserve the dissenting reasoning behind contested decisions, as a durable record.**
 
 `holdout` puts a question that has no verifiable answer to several independently prompted
