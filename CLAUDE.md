@@ -97,7 +97,7 @@ src/holdout/
     template.html.j2   faithful, equal-weight render
     render.py
   cli.py               thin typer wrapper over the library
-prompts/               versioned prompt text, SEPARATE from logic
+  prompts/             versioned prompt text, loaded via importlib.resources
 tests/                 mirror the modules above
 ```
 
