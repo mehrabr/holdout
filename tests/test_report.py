@@ -11,7 +11,9 @@ Covers the faithfulness and structural properties specified in the testing strat
 
 from __future__ import annotations
 
+import base64
 import re
+from pathlib import Path
 
 from holdout.report.render import render
 from holdout.types import Outcome, Position, Record, Tier, Vote
@@ -215,3 +217,55 @@ def test_no_external_resources() -> None:
     html = render(_MAJORITY_RECORD)
     assert 'href="http' not in html
     assert 'src="http' not in html
+
+
+# ── image rendering ───────────────────────────────────────────────────────────
+
+
+def test_url_image_appears_in_report() -> None:
+    """A URL image must appear as an <img src> in the report."""
+    url = "https://example.com/diagram.png"
+    html = render(_MAJORITY_RECORD, images=[url])
+    assert url in html
+    assert "<img" in html
+
+
+def test_url_image_renders_visual_context_section() -> None:
+    html = render(_MAJORITY_RECORD, images=["https://example.com/x.png"])
+    assert "Visual Context" in html
+
+
+def test_local_image_embedded_as_data_uri(tmp_path: Path) -> None:
+    """A local file must be embedded as a data URI (self-contained report)."""
+    img = tmp_path / "photo.png"
+    img.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 16)
+    html = render(_MAJORITY_RECORD, images=[str(img)])
+    assert "data:image/png;base64," in html
+    assert 'src="http' not in html  # no external reference to the local file
+
+
+def test_local_image_data_uri_content_matches_file(tmp_path: Path) -> None:
+    """The embedded data URI must contain the exact bytes of the original file."""
+    raw = b"\x89PNG\r\n\x1a\n" + b"FAKE_PNG_BODY"
+    img = tmp_path / "test.png"
+    img.write_bytes(raw)
+    html = render(_MAJORITY_RECORD, images=[str(img)])
+    expected_b64 = base64.b64encode(raw).decode()
+    assert expected_b64 in html
+
+
+def test_no_images_no_visual_context_section() -> None:
+    """Without images the report must not contain a Visual Context section."""
+    html = render(_MAJORITY_RECORD)
+    assert "Visual Context" not in html
+    assert "<img" not in html
+
+
+def test_multiple_images_all_appear(tmp_path: Path) -> None:
+    """Every image in the list must appear in the report."""
+    img1 = tmp_path / "a.png"
+    img1.write_bytes(b"AAAAAA")
+    url = "https://example.com/b.png"
+    html = render(_MAJORITY_RECORD, images=[str(img1), url])
+    assert url in html
+    assert base64.b64encode(b"AAAAAA").decode() in html

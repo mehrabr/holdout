@@ -80,9 +80,50 @@ record.to_report()  # render the self-contained report file
 ```
 
 ```bash
-holdout "Should we adopt this dependency?" --tier hard_to_reverse --report decision.html
+holdout deliberate "Should we adopt this dependency?" --tier hard_to_reverse --report decision.html
 holdout similar "Should we adopt a different dependency?"
 ```
+
+### Multimodal (image) input
+
+Pass one or more images alongside the question with `--image`. Every panel member
+receives the same image(s), so the vote is never corrupted by a blind voter. Accepts
+local file paths or URLs. Requires a vision-capable model (`gpt-4o`, `claude-*`,
+`gemini-*`, etc.).
+
+```bash
+# local file
+holdout deliberate "Is the dashboard layout clear?" \
+  --tier reversible \
+  --image ./screenshots/dashboard.png \
+  --report review.html
+
+# remote URL
+holdout deliberate "Does this architecture diagram make sense?" \
+  --tier hard_to_reverse \
+  --image https://example.com/arch.png
+```
+
+```python
+record = await panel.deliberate(
+    "Is this design accessible?",
+    tier="reversible",
+    images=["./mockup.png"],   # local path or URL, list is repeatable
+)
+```
+
+The rendered HTML report includes a **Visual Context** section showing the shared
+image(s) alongside each agent's rationale.
+
+## Configuration
+
+Set provider details via environment variables:
+
+| Variable | Default | Description |
+|---|---|---|
+| `HOLDOUT_API_KEY` | _(required)_ | Bearer token for the completion endpoint |
+| `HOLDOUT_BASE_URL` | `https://api.openai.com/v1` | API root (OpenAI-compatible) |
+| `HOLDOUT_MODEL` | `gpt-4o` | Model name |
 
 ## Status
 

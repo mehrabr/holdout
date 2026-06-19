@@ -1,4 +1,4 @@
-"""Engine: orchestrates the full MAGI protocol from question to Record.
+"""Engine: orchestrates the full holdout protocol from question to Record.
 
 The Panel class is the single public entrypoint. The caller asserts the
 decision's reversibility tier; the engine does not infer or validate it.
@@ -36,14 +36,22 @@ class Panel:
     agents: Sequence[Agent]
     provider: Provider
 
-    async def deliberate(self, question: str, tier: Tier | str) -> Record:
+    async def deliberate(
+        self,
+        question: str,
+        tier: Tier | str,
+        images: Sequence[str] = (),
+    ) -> Record:
         """Run a full deliberation and return the durable Record.
 
         The caller asserts the reversibility tier; the engine does not infer it.
         All agent commitments are dispatched concurrently (blind commitment guarantee).
+
+        `images` is an optional list of paths or URLs passed as shared visual context
+        to every agent. It does not affect the deliberation contract.
         """
         resolved_tier = Tier(tier)
-        positions = await gather(question, self.agents, self.provider)
+        positions = await gather(question, self.agents, self.provider, images)
         initial_outcome = tabulate(positions, resolved_tier)
 
         crux: str | None = None

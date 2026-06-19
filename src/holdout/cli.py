@@ -1,16 +1,17 @@
-"""CLI: thin typer wrapper over the MAGI library.
+"""CLI: thin typer wrapper over the holdout library.
 
 Entry point: ``holdout`` (configured in pyproject.toml).
 
 Commands:
-  holdout deliberate "question" --tier reversible|hard_to_reverse [--report FILE] [--db PATH]
+  holdout deliberate "question" --tier reversible|hard_to_reverse
+                                [--image PATH_OR_URL] [--report FILE] [--db PATH]
   holdout record <id>     [--db PATH]
   holdout similar "q"     [--n N] [--db PATH]
 
 Provider configuration via environment variables:
-  MAGI_API_KEY   Bearer token (required for real completions)
-  MAGI_BASE_URL  API root (default: https://api.openai.com/v1)
-  MAGI_MODEL     Model name (default: gpt-4o)
+  HOLDOUT_API_KEY   Bearer token (required for real completions)
+  HOLDOUT_BASE_URL  API root (default: https://api.openai.com/v1)
+  HOLDOUT_MODEL     Model name (default: gpt-4o)
 """
 
 from __future__ import annotations
@@ -31,7 +32,7 @@ from holdout.types import Agent, Tier
 
 app = typer.Typer(no_args_is_help=True)
 
-_DEFAULT_DB = Path.home() / ".magi" / "records.db"
+_DEFAULT_DB = Path.home() / ".holdout" / "records.db"
 
 _DEFAULT_AGENTS = [
     Agent(name="empirical", mandate="Reason from data, evidence, and measurable outcomes."),
@@ -42,12 +43,33 @@ _DEFAULT_AGENTS = [
     Agent(name="practitioner", mandate="Reason from pattern, precedent, and tacit experience."),
 ]
 
+# Model substrings that indicate vision capability. Checked when --image is passed.
+# Add entries here as new vision-capable models become available via the endpoint.
+_VISION_CAPABLE_PATTERNS: frozenset[str] = frozenset(
+    [
+        "gpt-4o",
+        "gpt-4-turbo",
+        "gpt-4-vision",
+        "claude-",
+        "gemini-",
+        "llava",
+        "pixtral",
+        "qwen-vl",
+        "minicpm-v",
+    ]
+)
+
+
+def _is_vision_capable(model: str) -> bool:
+    m = model.lower()
+    return any(p in m for p in _VISION_CAPABLE_PATTERNS)
+
 
 def _make_provider() -> Provider:
     return OpenAICompatProvider(
-        base_url=os.environ.get("MAGI_BASE_URL", "https://api.openai.com/v1"),
-        api_key=os.environ.get("MAGI_API_KEY", ""),
-        model=os.environ.get("MAGI_MODEL", "gpt-4o"),
+        base_url=os.environ.get("HOLDOUT_BASE_URL", "https://api.openai.com/v1"),
+        api_key=os.environ.get("HOLDOUT_API_KEY", ""),
+        model=os.environ.get("HOLDOUT_MODEL", "gpt-4o"),
     )
 
 
@@ -59,6 +81,11 @@ _provider_factory: Callable[[], Provider] = _make_provider
 def deliberate(
     question: str = typer.Argument(..., help="The question to deliberate."),
     tier: str = typer.Option(..., help="Reversibility: 'reversible' or 'hard_to_reverse'."),
+    image: list[str] = typer.Option(
+        [],
+        "--image",
+        help="Path or URL to a shared image (repeatable). Requires a vision-capable model.",
+    ),
     report: Path | None = typer.Option(None, help="Write the HTML report to this file."),
     db: Path = typer.Option(_DEFAULT_DB, help="Path to the SQLite record store."),
 ) -> None:
@@ -72,15 +99,27 @@ def deliberate(
         )
         raise typer.Exit(code=1) from None
 
+    if image:
+        model = os.environ.get("HOLDOUT_MODEL", "gpt-4o")
+        if not _is_vision_capable(model):
+            typer.echo(
+                f"Error: model {model!r} is not known to be vision-capable. "
+                "All panel members must be able to see images or the vote is corrupted "
+                "by a blind voter. Set HOLDOUT_MODEL to a vision-capable model "
+                "(e.g. gpt-4o, claude-3-5-sonnet, gemini-1.5-pro) or remove --image.",
+                err=True,
+            )
+            raise typer.Exit(code=1) from None
+
     db.parent.mkdir(parents=True, exist_ok=True)
     provider = _provider_factory()
     panel = Panel(_DEFAULT_AGENTS, provider=provider)
-    rec = asyncio.run(panel.deliberate(question, tier=resolved_tier))
+    rec = asyncio.run(panel.deliberate(question, tier=resolved_tier, images=image))
 
     store = RecordStore(db)
     store.write(rec)
 
-    html = render(rec)
+    html = render(rec, images=image)
     if report is not None:
         report.write_text(html, encoding="utf-8")
         typer.echo(f"Report written to {report}")

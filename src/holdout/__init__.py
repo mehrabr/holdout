@@ -1,4 +1,4 @@
-"""MAGI — preserve the dissenting reasoning behind contested decisions.
+"""holdout — preserve the dissenting reasoning behind contested decisions.
 
 Public API is intentionally tiny. The contract lives in `types`; the provider seam
 in `providers.base`.
