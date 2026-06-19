@@ -1,6 +1,6 @@
 [project]
 name = "holdout"
-version = "0.2.0"
+version = "0.3.0"
 description = "Preserve the dissenting reasoning behind contested decisions, as a durable record."
 readme = "README.md"
 requires-python = ">=3.11"

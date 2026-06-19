@@ -8,7 +8,7 @@ Offline tests use respx to intercept httpx. They verify:
   - Concurrent calls each get the correct, distinct response.
 
 Live test (opt-in, -m live): sends a real completion to a configured endpoint.
-Requires env vars MAGI_API_KEY, MAGI_BASE_URL, MAGI_MODEL.
+Requires env vars HOLDOUT_API_KEY, HOLDOUT_BASE_URL, HOLDOUT_MODEL.
 """
 
 from __future__ import annotations
@@ -208,11 +208,11 @@ async def test_live_smoke_returns_nonempty_completion() -> None:
     """Real endpoint returns a parseable non-empty string.
 
     Run with: pytest -m live
-    Requires: MAGI_API_KEY, MAGI_BASE_URL, MAGI_MODEL environment variables.
+    Requires: HOLDOUT_API_KEY, HOLDOUT_BASE_URL, HOLDOUT_MODEL environment variables.
     """
-    api_key = os.environ["MAGI_API_KEY"]
-    base_url = os.environ.get("MAGI_BASE_URL", "https://api.openai.com/v1")
-    model = os.environ.get("MAGI_MODEL", "gpt-4o-mini")
+    api_key = os.environ["HOLDOUT_API_KEY"]
+    base_url = os.environ.get("HOLDOUT_BASE_URL", "https://api.openai.com/v1")
+    model = os.environ.get("HOLDOUT_MODEL", "gpt-4o-mini")
 
     p = OpenAICompatProvider(base_url=base_url, api_key=api_key, model=model)
     result = await p.complete("Respond with exactly one word: hello")

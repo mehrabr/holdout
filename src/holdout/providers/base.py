@@ -1,6 +1,6 @@
 """The provider seam.
 
-A `Provider` is the only thing in MAGI that touches the network. Everything else --
+A `Provider` is the only thing in holdout that touches the network. Everything else --
 the protocol, the store, the report -- depends on this interface, not on any concrete
 provider. That single seam is what makes the entire deliberation engine testable
 offline, deterministically, with no API key.

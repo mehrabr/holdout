@@ -1,4 +1,4 @@
-"""CLI: thin typer wrapper over the MAGI library.
+"""CLI: thin typer wrapper over the holdout library.
 
 Entry point: ``holdout`` (configured in pyproject.toml).
 
@@ -9,9 +9,9 @@ Commands:
   holdout similar "q"     [--n N] [--db PATH]
 
 Provider configuration via environment variables:
-  MAGI_API_KEY   Bearer token (required for real completions)
-  MAGI_BASE_URL  API root (default: https://api.openai.com/v1)
-  MAGI_MODEL     Model name (default: gpt-4o)
+  HOLDOUT_API_KEY   Bearer token (required for real completions)
+  HOLDOUT_BASE_URL  API root (default: https://api.openai.com/v1)
+  HOLDOUT_MODEL     Model name (default: gpt-4o)
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ from holdout.types import Agent, Tier
 
 app = typer.Typer(no_args_is_help=True)
 
-_DEFAULT_DB = Path.home() / ".magi" / "records.db"
+_DEFAULT_DB = Path.home() / ".holdout" / "records.db"
 
 _DEFAULT_AGENTS = [
     Agent(name="empirical", mandate="Reason from data, evidence, and measurable outcomes."),
@@ -67,9 +67,9 @@ def _is_vision_capable(model: str) -> bool:
 
 def _make_provider() -> Provider:
     return OpenAICompatProvider(
-        base_url=os.environ.get("MAGI_BASE_URL", "https://api.openai.com/v1"),
-        api_key=os.environ.get("MAGI_API_KEY", ""),
-        model=os.environ.get("MAGI_MODEL", "gpt-4o"),
+        base_url=os.environ.get("HOLDOUT_BASE_URL", "https://api.openai.com/v1"),
+        api_key=os.environ.get("HOLDOUT_API_KEY", ""),
+        model=os.environ.get("HOLDOUT_MODEL", "gpt-4o"),
     )
 
 
@@ -100,12 +100,12 @@ def deliberate(
         raise typer.Exit(code=1) from None
 
     if image:
-        model = os.environ.get("MAGI_MODEL", "gpt-4o")
+        model = os.environ.get("HOLDOUT_MODEL", "gpt-4o")
         if not _is_vision_capable(model):
             typer.echo(
                 f"Error: model {model!r} is not known to be vision-capable. "
                 "All panel members must be able to see images or the vote is corrupted "
-                "by a blind voter. Set MAGI_MODEL to a vision-capable model "
+                "by a blind voter. Set HOLDOUT_MODEL to a vision-capable model "
                 "(e.g. gpt-4o, claude-3-5-sonnet, gemini-1.5-pro) or remove --image.",
                 err=True,
             )

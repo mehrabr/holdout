@@ -1,4 +1,4 @@
-"""Engine: orchestrates the full MAGI protocol from question to Record.
+"""Engine: orchestrates the full holdout protocol from question to Record.
 
 The Panel class is the single public entrypoint. The caller asserts the
 decision's reversibility tier; the engine does not infer or validate it.

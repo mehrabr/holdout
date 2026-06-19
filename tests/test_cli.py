@@ -347,7 +347,7 @@ def test_deliberate_image_flag_passes_to_provider(
             return "Looks reasonable.\nVOTE: YES"
 
     monkeypatch.setattr(cli_module, "_provider_factory", lambda: _RecordingProvider())
-    monkeypatch.setenv("MAGI_MODEL", "gpt-4o")
+    monkeypatch.setenv("HOLDOUT_MODEL", "gpt-4o")
 
     img = tmp_path / "test.png"
     img.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 8)  # minimal PNG-ish bytes
@@ -400,7 +400,7 @@ def test_deliberate_image_url_passes_through(
             return "Looks reasonable.\nVOTE: YES"
 
     monkeypatch.setattr(cli_module, "_provider_factory", lambda: _RecordingProvider())
-    monkeypatch.setenv("MAGI_MODEL", "gpt-4o")
+    monkeypatch.setenv("HOLDOUT_MODEL", "gpt-4o")
 
     url = "https://example.com/chart.png"
     result = runner.invoke(
@@ -442,7 +442,7 @@ def test_deliberate_image_report_contains_visual_context(
             return "Looks fine.\nVOTE: YES"
 
     monkeypatch.setattr(cli_module, "_provider_factory", lambda: _SimpleProvider())
-    monkeypatch.setenv("MAGI_MODEL", "gpt-4o")
+    monkeypatch.setenv("HOLDOUT_MODEL", "gpt-4o")
 
     img = tmp_path / "test.png"
     img.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 8)
@@ -491,7 +491,7 @@ def test_deliberate_non_vision_model_with_image_fails(
 ) -> None:
     """Passing --image with a text-only model must fail with a non-zero exit code."""
     monkeypatch.setattr(cli_module, "_provider_factory", _factory_unanimous)
-    monkeypatch.setenv("MAGI_MODEL", "gpt-3.5-turbo")
+    monkeypatch.setenv("HOLDOUT_MODEL", "gpt-3.5-turbo")
 
     result = runner.invoke(
         app,
@@ -514,7 +514,7 @@ def test_deliberate_non_vision_model_with_image_error_message(
 ) -> None:
     """The error message for a non-vision model must mention the model and vision."""
     monkeypatch.setattr(cli_module, "_provider_factory", _factory_unanimous)
-    monkeypatch.setenv("MAGI_MODEL", "gpt-3.5-turbo")
+    monkeypatch.setenv("HOLDOUT_MODEL", "gpt-3.5-turbo")
 
     result = runner.invoke(
         app,
@@ -538,7 +538,7 @@ def test_deliberate_vision_model_with_image_succeeds(
 ) -> None:
     """A known vision-capable model must not be blocked by the guardrail."""
     monkeypatch.setattr(cli_module, "_provider_factory", _factory_unanimous)
-    monkeypatch.setenv("MAGI_MODEL", "gpt-4o")
+    monkeypatch.setenv("HOLDOUT_MODEL", "gpt-4o")
 
     result = runner.invoke(
         app,
