@@ -45,12 +45,18 @@ def _provider(
 
 
 def test_commit_signature_takes_exactly_one_agent() -> None:
-    """commit() must accept one Agent, never a collection or a peer-output parameter."""
+    """commit() must accept one Agent, never a collection or a peer-output parameter.
+
+    `images` is permitted as shared visual context; it is identical for every agent
+    and cannot carry peer output. The forbidden set covers any name that could be
+    used to pass one agent's output to another.
+    """
     sig = inspect.signature(commit)
     params = list(sig.parameters.keys())
 
-    assert params == ["question", "agent", "provider"], (
-        f"commit() parameters are {params!r} -- expected ['question', 'agent', 'provider']"
+    assert params == ["question", "agent", "provider", "images"], (
+        f"commit() parameters are {params!r} -- "
+        "expected ['question', 'agent', 'provider', 'images']"
     )
 
     hints = get_type_hints(commit)
@@ -59,7 +65,7 @@ def test_commit_signature_takes_exactly_one_agent() -> None:
         "a collection type here would allow the panel to be passed"
     )
 
-    forbidden = {"agents", "peers", "panel", "rationales", "context", "peer_output"}
+    forbidden = {"agents", "peers", "panel", "rationales", "peer_output"}
     for name in forbidden:
         assert name not in params, (
             f"commit() has a '{name}' parameter -- this opens a path for peer output injection"
@@ -261,3 +267,82 @@ async def test_blind_commitment_surveillance() -> None:
                 "this token only exists in a peer's rationale response; "
                 "its presence means peer output was injected (Invariant II violated)"
             )
+
+
+# ---- vision (multimodal) path -----------------------------------------------
+
+
+async def test_commit_with_url_image_sends_multimodal_content() -> None:
+    """When an image URL is passed, the provider receives a list of content parts."""
+    from holdout.providers.fake import FakeProvider
+
+    agent = _agent("empirical", "reason from data")
+    provider = FakeProvider(default="Looks good.\nVOTE: YES")
+    url = "https://example.com/diagram.png"
+
+    pos = await commit(QUESTION, agent, provider, images=[url])
+
+    assert pos.vote is Vote.YES
+    assert len(provider.content_calls) == 1
+    content = provider.content_calls[0]
+    assert isinstance(content, list), "vision call must produce a list of content parts"
+    types = [part.get("type") for part in content if isinstance(part, dict)]
+    assert "text" in types, "content list must include a text part"
+    assert "image_url" in types, "content list must include an image_url part"
+    # The image URL must appear verbatim in the image_url part
+    assert any(
+        isinstance(p, dict)
+        and p.get("type") == "image_url"
+        and isinstance(p.get("image_url"), dict)
+        and p["image_url"].get("url") == url  # type: ignore[index]
+        for p in content
+    ), "image URL must appear verbatim in the content"
+
+
+async def test_commit_without_images_sends_plain_string() -> None:
+    """Text-only path: provider receives a plain str, not a list."""
+    from holdout.providers.fake import FakeProvider
+
+    agent = _agent("empirical", "reason from data")
+    provider = FakeProvider(default="Analysis.\nVOTE: YES")
+
+    await commit(QUESTION, agent, provider)
+
+    assert len(provider.content_calls) == 1
+    assert isinstance(provider.content_calls[0], str), (
+        "text-only call must produce a plain string, not a list"
+    )
+
+
+async def test_gather_with_images_all_agents_receive_image() -> None:
+    """Every agent in the panel must receive the shared image."""
+    from holdout.providers.fake import FakeProvider
+
+    url = "https://example.com/chart.png"
+    provider = FakeProvider(default="Reasonable.\nVOTE: YES")
+
+    await gather(QUESTION, AGENTS_3, provider, images=[url])
+
+    assert len(provider.content_calls) == 3
+    for i, content in enumerate(provider.content_calls):
+        assert isinstance(content, list), f"agent {i} did not receive multimodal content"
+        assert any(
+            isinstance(p, dict)
+            and p.get("type") == "image_url"
+            and isinstance(p.get("image_url"), dict)
+            and p["image_url"].get("url") == url  # type: ignore[index]
+            for p in content
+        ), f"agent {i} did not receive the shared image"
+
+
+async def test_gather_without_images_all_calls_are_text_only() -> None:
+    """Snapshot: with no images every agent receives a plain string (backward compat)."""
+    from holdout.providers.fake import FakeProvider
+
+    provider = FakeProvider(default="Fine.\nVOTE: YES")
+
+    await gather(QUESTION, AGENTS_3, provider)
+
+    assert all(isinstance(c, str) for c in provider.content_calls), (
+        "text-only gather must send plain strings to every agent"
+    )

@@ -316,3 +316,241 @@ def test_similar_output_contains_outcome_and_question(
     result = runner.invoke(app, ["similar", "--db", db, "adopt this technology"])
     assert "majority" in result.output.lower()
     assert _Q in result.output
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# deliberate command — --image flag
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def test_deliberate_image_flag_passes_to_provider(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """When --image is passed, the provider receives multimodal content."""
+    received_calls: list[object] = []
+
+    class _RecordingProvider:
+        async def complete(self, content: object) -> str:
+            received_calls.append(content)
+            # Concurrence prompt contains "[Mandate:" from _format_rationales.
+            text = (
+                content
+                if isinstance(content, str)
+                else " ".join(
+                    p.get("text", "")
+                    for p in content  # type: ignore[union-attr]
+                    if isinstance(p, dict) and p.get("type") == "text"
+                )
+            )
+            if "[Mandate:" in text:
+                return "Reasons reinforce each other.\nASSESSMENT: CONVERGENT"
+            return "Looks reasonable.\nVOTE: YES"
+
+    monkeypatch.setattr(cli_module, "_provider_factory", lambda: _RecordingProvider())
+    monkeypatch.setenv("MAGI_MODEL", "gpt-4o")
+
+    img = tmp_path / "test.png"
+    img.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 8)  # minimal PNG-ish bytes
+
+    result = runner.invoke(
+        app,
+        [
+            "deliberate",
+            "--db",
+            str(tmp_path / "db"),
+            _Q,
+            "--tier",
+            "reversible",
+            "--image",
+            str(img),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    # Commit calls are multimodal; crux/concurrence calls are text-only.
+    multimodal_calls = [c for c in received_calls if isinstance(c, list)]
+    assert multimodal_calls, "expected at least one multimodal provider call"
+    # Every multimodal call should include an image_url part.
+    for call in multimodal_calls:
+        assert isinstance(call, list)
+        assert any(isinstance(p, dict) and p.get("type") == "image_url" for p in call), (
+            "multimodal call is missing an image_url part"
+        )
+
+
+def test_deliberate_image_url_passes_through(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A URL passed with --image appears verbatim in the provider content."""
+    received_calls: list[object] = []
+
+    class _RecordingProvider:
+        async def complete(self, content: object) -> str:
+            received_calls.append(content)
+            text = (
+                content
+                if isinstance(content, str)
+                else " ".join(
+                    p.get("text", "")
+                    for p in content  # type: ignore[union-attr]
+                    if isinstance(p, dict) and p.get("type") == "text"
+                )
+            )
+            if "[Mandate:" in text:
+                return "Reasons reinforce each other.\nASSESSMENT: CONVERGENT"
+            return "Looks reasonable.\nVOTE: YES"
+
+    monkeypatch.setattr(cli_module, "_provider_factory", lambda: _RecordingProvider())
+    monkeypatch.setenv("MAGI_MODEL", "gpt-4o")
+
+    url = "https://example.com/chart.png"
+    result = runner.invoke(
+        app,
+        ["deliberate", "--db", str(tmp_path / "db"), _Q, "--tier", "reversible", "--image", url],
+    )
+    assert result.exit_code == 0, result.output
+    multimodal = [c for c in received_calls if isinstance(c, list)]
+    assert multimodal, "expected multimodal calls"
+    first = multimodal[0]
+    assert isinstance(first, list)
+    assert any(
+        isinstance(p, dict)
+        and p.get("type") == "image_url"
+        and isinstance(p.get("image_url"), dict)
+        and p["image_url"].get("url") == url  # type: ignore[index]
+        for p in first
+    ), "image URL not found verbatim in provider call"
+
+
+def test_deliberate_image_report_contains_visual_context(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The HTML report includes the Visual Context section when --image is used."""
+
+    class _SimpleProvider:
+        async def complete(self, content: object) -> str:
+            text = (
+                content
+                if isinstance(content, str)
+                else " ".join(
+                    p.get("text", "")
+                    for p in content  # type: ignore[union-attr]
+                    if isinstance(p, dict) and p.get("type") == "text"
+                )
+            )
+            if "[Mandate:" in text:
+                return "Reasons reinforce.\nASSESSMENT: CONVERGENT"
+            return "Looks fine.\nVOTE: YES"
+
+    monkeypatch.setattr(cli_module, "_provider_factory", lambda: _SimpleProvider())
+    monkeypatch.setenv("MAGI_MODEL", "gpt-4o")
+
+    img = tmp_path / "test.png"
+    img.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 8)
+    report = tmp_path / "report.html"
+
+    result = runner.invoke(
+        app,
+        [
+            "deliberate",
+            "--db",
+            str(tmp_path / "db"),
+            _Q,
+            "--tier",
+            "reversible",
+            "--image",
+            str(img),
+            "--report",
+            str(report),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert report.exists()
+    html = report.read_text()
+    assert "Visual Context" in html
+    assert "<img" in html
+
+
+def test_deliberate_no_image_report_has_no_visual_context(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Without --image the report has no Visual Context section."""
+    db = str(tmp_path / "db")
+    report = tmp_path / "report.html"
+    _invoke_deliberate(db, monkeypatch, "--report", str(report))
+    html = report.read_text()
+    assert "Visual Context" not in html
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# deliberate command — vision guardrail
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def test_deliberate_non_vision_model_with_image_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Passing --image with a text-only model must fail with a non-zero exit code."""
+    monkeypatch.setattr(cli_module, "_provider_factory", _factory_unanimous)
+    monkeypatch.setenv("MAGI_MODEL", "gpt-3.5-turbo")
+
+    result = runner.invoke(
+        app,
+        [
+            "deliberate",
+            "--db",
+            str(tmp_path / "db"),
+            _Q,
+            "--tier",
+            "reversible",
+            "--image",
+            "https://example.com/img.png",
+        ],
+    )
+    assert result.exit_code != 0
+
+
+def test_deliberate_non_vision_model_with_image_error_message(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The error message for a non-vision model must mention the model and vision."""
+    monkeypatch.setattr(cli_module, "_provider_factory", _factory_unanimous)
+    monkeypatch.setenv("MAGI_MODEL", "gpt-3.5-turbo")
+
+    result = runner.invoke(
+        app,
+        [
+            "deliberate",
+            "--db",
+            str(tmp_path / "db"),
+            _Q,
+            "--tier",
+            "reversible",
+            "--image",
+            "https://example.com/img.png",
+        ],
+    )
+    combined = result.output + (result.stderr if hasattr(result, "stderr") else "")
+    assert "gpt-3.5-turbo" in combined or "vision" in combined.lower()
+
+
+def test_deliberate_vision_model_with_image_succeeds(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A known vision-capable model must not be blocked by the guardrail."""
+    monkeypatch.setattr(cli_module, "_provider_factory", _factory_unanimous)
+    monkeypatch.setenv("MAGI_MODEL", "gpt-4o")
+
+    result = runner.invoke(
+        app,
+        [
+            "deliberate",
+            "--db",
+            str(tmp_path / "db"),
+            _Q,
+            "--tier",
+            "reversible",
+            "--image",
+            "https://example.com/img.png",
+        ],
+    )
+    assert result.exit_code == 0, result.output

@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import httpx
 
+from holdout.providers.base import MessageContent
+
 _DEFAULT_TIMEOUT = 60.0
 
 
@@ -41,8 +43,13 @@ class OpenAICompatProvider:
             timeout=timeout,
         )
 
-    async def complete(self, prompt: str) -> str:
+    async def complete(self, content: MessageContent) -> str:
         """POST to /chat/completions; return the assistant message text.
+
+        ``content`` is either a plain text string or a list of OpenAI-style
+        content parts (text + image_url). It is forwarded verbatim as the
+        message ``content`` field, so vision calls work without any extra
+        adaptation at this layer.
 
         Raises ``httpx.HTTPStatusError`` on 4xx/5xx responses.
         Raises ``httpx.TimeoutException`` when the request times out.
@@ -51,7 +58,7 @@ class OpenAICompatProvider:
             "/chat/completions",
             json={
                 "model": self.model,
-                "messages": [{"role": "user", "content": prompt}],
+                "messages": [{"role": "user", "content": content}],
             },
         )
         response.raise_for_status()

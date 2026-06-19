@@ -19,6 +19,8 @@
     .fragile-box { background: #fef3f3; border-left: 4px solid #c0392b; padding: 1em; margin: 1em 0; }
     .citation { color: #666; font-size: .85em; }
     code { background: #eee; padding: .1em .3em; border-radius: 2px; font-size: .9em; }
+    .evidence-images { display: flex; flex-wrap: wrap; gap: .75em; margin: .75em 0; }
+    .evidence-images img { max-width: 100%; max-height: 480px; border: 1px solid #bbb; border-radius: 4px; object-fit: contain; }
   </style>
 </head>
 <body>
@@ -32,6 +34,15 @@
 
 <h2>Question</h2>
 <blockquote>{{ record.question }}</blockquote>
+
+{% if images %}
+<h2>Visual Context</h2>
+<div class="evidence-images">
+{% for src in images %}
+  <img src="{{ src }}" alt="evidence {{ loop.index }}">
+{% endfor %}
+</div>
+{% endif %}
 
 <h2>Outcome: {{ record.outcome }}</h2>
 <p class="tally">YES: {{ yes_count }} &nbsp;&bull;&nbsp; NO: {{ no_count }}</p>

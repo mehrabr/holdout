@@ -63,6 +63,21 @@ async def test_request_body_model_and_messages() -> None:
 
 
 @respx.mock
+async def test_multimodal_content_forwarded_verbatim() -> None:
+    """A list of content parts is forwarded to the API exactly as given."""
+    route = respx.post(_CHAT_URL).mock(return_value=httpx.Response(200, json=_chat_json("ok")))
+    p = _provider()
+    parts: list[dict[str, object]] = [
+        {"type": "text", "text": "Describe this image."},
+        {"type": "image_url", "image_url": {"url": "https://example.com/img.png"}},
+    ]
+    await p.complete(parts)
+    await p.aclose()
+    payload = json.loads(route.calls.last.request.content)
+    assert payload["messages"] == [{"role": "user", "content": parts}]
+
+
+@respx.mock
 async def test_auth_bearer_header_present() -> None:
     route = respx.post(_CHAT_URL).mock(return_value=httpx.Response(200, json=_chat_json("ok")))
     p = _provider()
